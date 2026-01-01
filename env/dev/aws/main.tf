@@ -18,3 +18,12 @@ module "s3_etl_bucket" {
   project     = local.project
   environment = local.environment
 }
+
+##############################################
+# CloudWatch Logs
+##############################################
+module "cloudwatch_logs" {
+  source      = "../../../modules/aws/cloudwatch_logs"
+  project     = local.project
+  environment = local.environment
+}
