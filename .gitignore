@@ -1,0 +1,21 @@
+# Terraform temporary files
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Secret & sensitive files
+terraform.tfvars
+*.json
+!sample*.json
+*.pem
+*.key
+*.p12
+*.crt
+.env
+venv/
+
+# OS/Editor
+.DS_Store
+__pycache__/
+*.pyc
