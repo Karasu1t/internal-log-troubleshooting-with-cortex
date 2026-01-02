@@ -1,13 +1,21 @@
 import json
+import datetime
 
 def lambda_handler(event, context):
-    # サンプルイベントのログ出力
-    print("Received event: " + json.dumps(event, indent=2))
-    
-    # レスポンスの作成
-    response = {
-        'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+    log = {
+        "ts": context.aws_request_id,
+        "source": "api_gateway",
+        "path": event.get("rawPath"),
+        "method": event.get("requestContext", {})
+                     .get("http", {})
+                     .get("method"),
+        "body": event.get("body"),
+        "status": 200
     }
-    
-    return response
+
+    print(json.dumps(log))
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps("Complited!")
+    }

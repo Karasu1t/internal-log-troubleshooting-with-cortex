@@ -49,6 +49,16 @@ module "apigateway" {
 }
 
 ##############################################
+# Kinesis Firehose
+##############################################
+module "kinesis_firehose" {
+  source        = "../../../modules/aws/kinesis_firehose"
+  project       = local.project
+  environment   = local.environment
+  s3_bucket_arn = module.s3_lambda_raw_logs_bucket.bucket_arn
+}
+
+##############################################
 # Outputs
 ##############################################
 output "api_gateway_url" {

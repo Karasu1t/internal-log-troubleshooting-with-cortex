@@ -1,3 +1,3 @@
 output "api_url" {
-  value = "${aws_api_gateway_stage.stage.invoke_url}/lambda"
+  value = aws_apigatewayv2_stage.stage.invoke_url
 }
