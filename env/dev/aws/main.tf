@@ -52,10 +52,14 @@ module "apigateway" {
 # Kinesis Firehose
 ##############################################
 module "kinesis_firehose" {
-  source        = "../../../modules/aws/kinesis_firehose"
-  project       = local.project
-  environment   = local.environment
-  s3_bucket_arn = module.s3_lambda_raw_logs_bucket.bucket_arn
+  source                  = "../../../modules/aws/kinesis_firehose"
+  project                 = local.project
+  environment             = local.environment
+  s3_bucket_arn           = module.s3_lambda_raw_logs_bucket.bucket_arn
+  log_group_name          = module.cloudwatch_logs.log_group_name
+  firehose_log_group_name = module.cloudwatch_logs.firehose_log_group_name
+
+  depends_on = [module.cloudwatch_logs]
 }
 
 ##############################################
