@@ -1,0 +1,54 @@
+name: Auto Snowflake Apply
+
+on:
+  push:
+    paths:
+      - "modules/snowflake/**"
+      - "env/dev/snowflake/**"
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      create_iceberg_table_ddl:
+        description: "Phase 2: run CREATE ICEBERG TABLE DDL after Glue has registered lambda_logs"
+        type: boolean
+        default: false
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: env/dev/snowflake
+    env:
+      TF_VAR_snowflake_organization_name: ${{ secrets.SNOWFLAKE_ORGANIZATION_NAME }}
+      TF_VAR_snowflake_account_name: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
+      TF_VAR_snowflake_user: TF_USER
+      TF_VAR_snowflake_password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      TF_VAR_snowflake_role: ACCOUNTADMIN
+      # Always false on push; manual runs can set true via the workflow_dispatch checkbox (TF_VAR_create_iceberg_table_ddl).
+      TF_VAR_create_iceberg_table_ddl: ${{ github.event_name == 'workflow_dispatch' && (inputs.create_iceberg_table_ddl && 'true' || 'false') || 'false' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (S3 backend for Terraform)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -no-color
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -no-color
